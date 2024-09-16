@@ -1,15 +1,15 @@
 {
-    "name": "avantvista/corexphp",
-    "description": "CoreXPHP MVC Framework",
+    "name": "kaiidenaadhil/corexphp",       
+    "description": "CoreXPHP MVC Framework",  
     "require": {
-        "php": ">=8.0",
-        "phpmailer/phpmailer": "^6.9"
+        "php": ">=8.0",                     
+        "phpmailer/phpmailer": "^6.9" 
     },
     "autoload": {
         "files": [
             "app/core/Function.php",
-            "app/core/App.php",
-            "app/core/Controller.php",
+            "app/core/App.php",               
+            "app/core/Controller.php",        
             "app/core/Request.php",
             "app/core/Response.php",
             "app/core/MiddlewareInterface.php",
@@ -22,5 +22,19 @@
             "app/core/Language.php",
             "app/core/View.php"
         ]
+    },
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",                   
+            "url": "https://github.com/kaiidenaadhil/coreXPHP.git" 
+        }
+    ],
+    "extra": {
+        "branch-alias": {                 
+            "dev-main": "1.0.x-dev"
+        }
     }
 }
