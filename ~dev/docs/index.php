@@ -1,4 +1,4 @@
-<?php include_once"./components/docs-header.php"; ?>
+<?php include_once"../components/docs-header.php"; ?>
 
     <main class="content">
     <div class="breadcrumb">
@@ -42,3 +42,4 @@
         </div>
     </main>
 </div>
+<?php include_once"../components/docs-footer.php"; ?>
