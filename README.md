@@ -45,8 +45,12 @@ CoreXPHP includes the **CoreXBuilder**, an intuitive, web-based development tool
    ```bash
    git clone https://github.com/your-username/CoreXPHP.git
    cd CoreXPHP
-Configure your .env file with database and application settings.
-Install dependencies using Composer ->  composer install
-Run the application -> php -S localhost:8000 -t public
+2. Configure your .env file with database and application settings.
+3. Install dependencies using Composer
+ ```bash
+    composer install
+4. Run the application -> 
+ ```bash
+    php -S localhost:8000 -t public
 
 
