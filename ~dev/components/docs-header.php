@@ -19,6 +19,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 10;
     margin: 20px;
     width: 250px;
     background-color: #ffffff;
@@ -44,6 +45,11 @@ body {
     list-style-type: none;
     padding: 0;
     margin: 0;
+}
+
+.sidebar nav ul li a{
+color:#6ca8e0;
+text-decoration:none;
 }
 
 /* General Styling for the Hamburger */
@@ -465,7 +471,14 @@ a:hover {
     }
 }
 
-
+code{
+    background-color: #ececec;
+    border-radius: .25rem;
+    color: #0d0d0d;
+    font-size: .875em;
+    font-weight: 500;
+    padding: .15rem .3rem;
+}
 </style>
  <!-- Highlight.js for Syntax Highlighting -->
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css"> 
@@ -657,12 +670,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </script>
 
-
+<?php
+define('ROOT', 'http://localhost:8082');
+?>
 
 <div class="container">
     <aside class="sidebar">
     <div class="logo-and-hamburger">
-    <a href="docs.php">
+    <a href="<?=ROOT?>/docs/">
     <div class="logo">
             <img src="../assets/img/logo.svg" alt="Logo" />
         </div>
@@ -677,7 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
     <nav id="nav-menu">
     <ul>
         <li class="menu-item">
-            <span>Introduction</span>
+            <span><a href="<?=ROOT?>/docs/intro.php">Introduction</a></span>
             <ul class="submenu">
                 <li>What is CoreXPHP?</li>
                 <li>Key Features</li>
@@ -687,7 +702,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Getting Started</span>
+            <span><a href="<?=ROOT?>/docs/install.php">Getting Started</a></span>
             <ul class="submenu">
                 <li>Installation</li>
                 <li>Project Structure Overview</li>
@@ -696,7 +711,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Routing</span>
+            <span><a href="<?=ROOT?>/docs/route.php">Routing</a></span> 
             <ul class="submenu">
                 <li>Defining Routes</li>
                 <li>Resourceful Routing</li>
@@ -707,7 +722,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Controllers</span>
+            <span><a href="<?=ROOT?>/docs/controllers.php">Controllers</a></span> 
             <ul class="submenu">
                 <li>Creating Controllers</li>
                 <li>Controller Methods</li>
@@ -716,7 +731,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Models</span>
+            <span><a href="<?=ROOT?>/docs/models.php">Models</a></span> 
             <ul class="submenu">
                 <li>Defining Models</li>
                 <li>Working with Database</li>
@@ -726,7 +741,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Views</span>
+            <span><a href="<?=ROOT?>/docs/views.php">Views</a></span> 
             <ul class="submenu">
                 <li>Templating Engine</li>
                 <li>Basic View Rendering</li>
@@ -736,7 +751,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Middleware</span>
+            <span><a href="<?=ROOT?>/docs/middleware.php">Middleware</a></span> 
             <ul class="submenu">
                 <li>Understanding Middleware</li>
                 <li>Creating Middleware</li>
@@ -745,7 +760,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Request Handling</span>
+            <span><a href="<?=ROOT?>/docs/request-handling.php">Request Handling</a></span> 
             <ul class="submenu">
                 <li>Handling Incoming Requests</li>
                 <li>Accessing Request Data</li>
@@ -754,7 +769,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Response Handling</span>
+            <span><a href="<?=ROOT?>/docs/response-handling.php">Response Handling</a></span> 
             <ul class="submenu">
                 <li>Returning Different Response Types</li>
                 <li>Redirects</li>
@@ -763,7 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Database</span>
+            <span><a href="<?=ROOT?>/docs/database.php">Database</a></span> 
             <ul class="submenu">
                 <li>Database Configuration</li>
                 <li>Migrations</li>
@@ -772,7 +787,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Validation</span>
+            <span><a href="<?=ROOT?>/docs/validation.php">Validation</a></span> 
             <ul class="submenu">
                 <li>Built-In Validation Rules</li>
                 <li>Custom Validation Rules</li>
@@ -780,7 +795,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Session & Authentication</span>
+        <span><a href="<?=ROOT?>/docs/session-authentication.php">Session & Authentication</a></span> 
             <ul class="submenu">
                 <li>Session Management</li>
                 <li>Authentication</li>
@@ -789,7 +804,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>CoreXBuilder Tool</span>
+            <span><a href="<?=ROOT?>/docs/corexbuilder-tool.php">CoreXBuilder Tool</a></span> 
             <ul class="submenu">
                 <li>Introduction to CoreXBuilder</li>
                 <li>Generating Models, Controllers, Views</li>
@@ -797,7 +812,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>File Management</span>
+            <span><a href="<?=ROOT?>/docs/file-management.php">File Management</a></span> 
             <ul class="submenu">
                 <li>Handling File Uploads</li>
                 <li>Managing Static Files</li>
@@ -805,7 +820,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Error Handling & Debugging</span>
+            <span><a href="<?=ROOT?>/docs/error-handling-debugging.php">Error Handling & Debugging</a></span> 
             <ul class="submenu">
                 <li>Custom Error Pages</li>
                 <li>Exception Handling</li>
@@ -813,7 +828,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Advanced Features</span>
+            <span><a href="<?=ROOT?>/docs/advanced-features.php">Advanced Features</a></span> 
             <ul class="submenu">
                 <li>Using the Query Builder</li>
                 <li>Working with Pagination</li>
@@ -824,7 +839,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>CLI Tooling</span>
+            <span><a href="<?=ROOT?>/docs/cli-tooling.php">CLI Tooling</a></span> 
             <ul class="submenu">
                 <li>Overview of CLI Commands</li>
                 <li>Generating Controllers</li>
@@ -832,7 +847,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Security</span>
+            <span><a href="<?=ROOT?>/docs/security.php">Security</a></span> 
             <ul class="submenu">
                 <li>CSRF Protection</li>
                 <li>XSS Prevention</li>
@@ -840,7 +855,8 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Queues and Jobs</span>
+        <span><a href="<?=ROOT?>/docs/queues-jobs.php">Queues and Jobs</a></span> 
+
             <ul class="submenu">
                 <li>Introduction to Queues</li>
                 <li>Queue Drivers & Configuration</li>
@@ -848,7 +864,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Testing</span>
+            <span><a href="<?=ROOT?>/docs/testing.php">Testing</a></span> 
             <ul class="submenu">
                 <li>Unit Testing</li>
                 <li>Feature Testing</li>
@@ -856,7 +872,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Localization & Multi-language Support</span>
+        <span><a href="<?=ROOT?>/docs/localization-multi-language-support">Localization & Multi-language Support</a></span> 
             <ul class="submenu">
                 <li>Setting up Language Files</li>
                 <li>Switching Between Languages</li>
@@ -864,7 +880,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Deployment</span>
+            <span><a href="<?=ROOT?>/docs/deployment">deployment</a></span> 
             <ul class="submenu">
                 <li>Preparing for Deployment</li>
                 <li>Deploying to a Web Server</li>
@@ -872,7 +888,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Contributing</span>
+            <span><a href="<?=ROOT?>/docs/contributing.php">Contributing</a></span> 
             <ul class="submenu">
                 <li>How to Contribute</li>
                 <li>Coding Standards</li>
@@ -880,7 +896,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>FAQs</span>
+        <span><a href="<?=ROOT?>/docs/faqs.php">FAQs</a></span>
             <ul class="submenu">
                 <li>Common Questions</li>
                 <li>Troubleshooting Tips</li>
@@ -888,10 +904,16 @@ document.addEventListener("DOMContentLoaded", function () {
         </li>
 
         <li class="menu-item">
-            <span>Changelog</span>
+            <span><a href="<?=ROOT?>/docs/changelog.php">Changelog</a></span>
             <ul class="submenu">
                 <li>Version History</li>
                 <li>Release Notes</li>
+            </ul>
+        </li>
+        <li class="menu-item">
+            <span><a href="<?=ROOT?>/docs/hidden.php">Hidden</a></span>
+            <ul class="submenu">
+                <li>hidden topics</li>
             </ul>
         </li>
     </ul>

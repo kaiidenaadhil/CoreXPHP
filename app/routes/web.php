@@ -7,7 +7,7 @@ $app->router->get('', function () {
 });
 
 // Static Route with Page Callback: Maps to a view  
-$app->router->get('/about', 'aboutPage');
+$app->router->get('/about', 'about');
 
 // Controller Method Route: Maps to a specific method in a controller class.
 $app->router->get('/home', [HomeController::class, 'index']);

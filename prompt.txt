@@ -1,0 +1,508 @@
+
+CoreXPHP Framework Full Documentation with Code Examples and Explanations
+
+---
+
+1. **app/core/App.php**
+   - Initializes the application by setting up essential components such as request, response, router, database, and view.
+   - Code Example:
+     ```php
+        <?php
+        class App {
+            public static string $ROOT_DIRECTORY;
+            public static View $view;
+            public static Logger $logger;
+            public static Session $session;
+            public static Cache $cache;
+
+            public Router $router;
+            public Request $request;
+            public Response $response;
+            public Database $db;
+            protected array $globalMiddleware = [];
+
+            public function __construct($rootPath) {
+                self::$ROOT_DIRECTORY = $rootPath;
+
+                // Initialize core components
+                $this->request = new Request();
+                $this->response = new Response();
+                $this->router = new Router($this->request, $this->response);
+                $this->db = new Database();
+
+                // Use dynamic path for the log file
+                $logPath = self::$ROOT_DIRECTORY . '/app/logs/error.log';
+                self::$view = new View(THEME);
+                self::$logger = new Logger($logPath);
+                self::$session = new Session();
+                self::$cache = new Cache(3600);
+
+                // Register global exception handler
+                set_exception_handler([$this, 'handleException']);
+            }
+
+            public function use($middlewareClass) {
+                $this->globalMiddleware[] = new $middlewareClass;
+            }
+
+            public function run() {
+                foreach ($this->globalMiddleware as $middleware) {
+                    $middleware->handle($this->request, $this->response);
+                }
+                echo $this->router->resolve();
+            }
+
+            public function handleException($exception) {
+                self::$logger->logError($exception);
+                http_response_code(500);
+                $this->renderErrorPage(500);
+            }
+
+            protected function renderErrorPage($errorCode) {
+                $errorView = self::$ROOT_DIRECTORY . "/app/views/errors/{$errorCode}.php";
+                if (file_exists($errorView)) {
+                    include $errorView;
+                } else {
+                    echo "Error {$errorCode}";
+                }
+            }
+        }
+
+     ```
+   - Explanation:
+     - `App` class initializes core components and sets up routing and database.
+     - `$ROOT_DIRECTORY` is the base path used throughout the application.
+     - `run()` executes the application, processing requests and delivering responses.
+
+2. **app/core/Controller.php**
+   - Base controller class, managing view rendering and loading models.
+   - Code Example:
+     ```php
+     <?php
+     class Controller {
+         public function view($view, $params = []) {
+             echo App::$view->render($view, $params); // Render a user-facing view with parameters
+         }
+
+         public function adminView($view, $params = []) {
+             echo App::$view->renderAdmin($view, $params); // Render admin-specific view
+         }
+
+         public function model($model) {
+             $modelPath = "../app/models/" . $model . ".php";
+             if (file_exists($modelPath)) {
+                 include $modelPath;
+                 return new $model; // Return a new model instance
+             }
+             throw new Exception("Model $model not found.");
+         }
+     }
+     ```
+   - Explanation:
+     - `view()` and `adminView()` render views with optional parameters.
+     - `model()` dynamically loads a model if the file exists, else throws an exception.
+
+3. **app/core/Database.php**
+   - Manages database connections using the singleton pattern for efficiency.
+   - Code Example:
+     ```php
+     <?php
+     class Database {
+         protected static $instance = null;
+         protected $conn;
+
+         public function __construct() {
+             try {
+                 $dsn = DB_TYPE . ":host=" . DB_HOST . ";dbname=" . DB_NAME;
+                 $this->conn = new PDO($dsn, DB_USER, DB_PASS);
+                 $this->conn->exec("SET NAMES utf8mb4");
+                 $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+             } catch (PDOException $e) {
+                 echo $e->getMessage(); // Handle connection error
+             }
+         }
+
+         public static function getInstance() {
+             if (!self::$instance) {
+                 self::$instance = new self(); // Ensure single instance
+             }
+             return self::$instance;
+         }
+
+         public function getConnection() {
+             return $this->conn; // Access the active PDO connection
+         }
+     }
+     ```
+   - Explanation:
+     - Singleton pattern provides a single instance of the database connection.
+     - `getConnection()` returns the active PDO connection.
+
+
+4. **app/core/Function.php**
+   - Provides utility functions for common tasks, such as debugging, redirection, and CSRF token handling.
+   - Code Example:
+     ```php
+     <?php
+     function p($value) {
+         echo "<pre>";
+         var_dump($value);
+         echo "</pre>";
+         exit; // Print and stop execution
+     }
+
+     function redirect($path, $statusCode = 303) {
+         $url = ROOT . '/' . $path;
+         header('Location: ' . $url, true, $statusCode); // Redirect to specified path
+         die();
+     }
+
+     function generateCSRFToken() {
+         $token = bin2hex(random_bytes(32));
+         $_SESSION['_token'] = $token;
+         return $token; // Return CSRF token
+     }
+     ```
+   - Explanation:
+     - `p()` function prints a variable’s content and halts execution, useful for debugging.
+     - `redirect()` function redirects to a specific path using an HTTP status code.
+     - `generateCSRFToken()` creates a secure token for CSRF protection.
+
+5. **app/core/Request.php**
+   - Manages HTTP request data, including GET, POST, and JSON handling.
+   - Code Example:
+     ```php
+     <?php
+     class Request {
+         public function getPath() {
+             $path = $_SERVER['REQUEST_URI'] ?? '/';
+             $position = strpos($path, '?');
+             return $position === false ? $path : substr($path, 0, $position); // Return path without query
+         }
+
+         public function method() {
+             return strtolower($_SERVER['REQUEST_METHOD']); // Get HTTP method
+         }
+
+         public function getBody() {
+             $body = [];
+             if ($this->isPost()) {
+                 foreach ($_POST as $key => $value) {
+                     $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+                 }
+             }
+             return $body; // Return sanitized POST data
+         }
+     }
+     ```
+   - Explanation:
+     - `getPath()` returns the URL path without query parameters.
+     - `method()` gets the HTTP method (e.g., GET or POST).
+     - `getBody()` sanitizes and returns POST data.
+
+6. **app/core/Router.php**
+   - Defines and resolves routes by mapping URLs to controllers or actions.
+   - Code Example:
+     ```php
+     <?php
+     class Router {
+         public Request $request;
+         public Response $response;
+         protected array $routes = [];
+
+         public function __construct(Request $request, Response $response) {
+             $this->request = $request;
+             $this->response = $response;
+         }
+
+         public function get($path, $callback) {
+             $this->routes['get'][$path] = $callback; // Register GET route
+         }
+
+         public function post($path, $callback) {
+             $this->routes['post'][$path] = $callback; // Register POST route
+         }
+
+         public function resolve() {
+             $path = $this->request->getPath();
+             $method = $this->request->method();
+             $callback = $this->routes[$method][$path] ?? false;
+
+             if ($callback === false) {
+                 $this->response->setStatusCode(404); // Set 404 for unknown routes
+                 return "Not Found";
+             }
+
+             return call_user_func($callback, $this->request);
+         }
+     }
+     ```
+   - Explanation:
+     - `get()` and `post()` register routes for GET and POST requests, respectively.
+     - `resolve()` matches the request path to a registered route and calls the corresponding callback.
+
+7. **app/core/View.php**
+   - Manages the rendering of views, loading templates and layouts based on parameters.
+   - Code Example:
+     ```php
+     <?php
+     class View {
+         public function render($view, $params = []) {
+             $viewContent = $this->renderView($view, $params); // Render view content
+             return $this->renderLayout($viewContent); // Wrap content in layout
+         }
+
+         protected function renderView($view, $params = []) {
+             $viewPath = App::$ROOT_DIRECTORY . "/app/views/" . THEME . "/{$view}.php";
+             extract($params); // Extract parameters for use in view
+             ob_start();
+             include $viewPath;
+             return ob_get_clean(); // Load and return view content
+         }
+
+         protected function renderLayout($content) {
+             $layoutPath = App::$ROOT_DIRECTORY . "/app/views/" . THEME . "/@layout/layout.php";
+             ob_start();
+             include $layoutPath;
+             return str_replace('{{content}}', $content, ob_get_clean()); // Insert view content into layout
+         }
+     }
+     ```
+   - Explanation:
+     - `render()` calls `renderView()` to load view content and `renderLayout()` to wrap it in a layout.
+     - `renderView()` loads the view file and processes it with given parameters.
+     - `renderLayout()` embeds the view content within a specified layout template.
+
+8. **app/core/Validator.php**
+   - Validates input data based on specified rules, ensuring data integrity.
+   - Code Example:
+     ```php
+     <?php
+     class Validator {
+         private $errors = [];
+         private $rules = [];
+
+         public function rules($rules) {
+             $this->rules = $rules; // Set validation rules
+         }
+
+         public function validate($data) {
+             foreach ($this->rules as $field => $fieldRules) {
+                 $rules = explode('|', $fieldRules);
+                 foreach ($rules as $rule) {
+                     $value = $data[$field] ?? null;
+                     $this->$rule($field, $value); // Apply each validation rule
+                 }
+             }
+         }
+
+         private function required($field, $value) {
+             if (empty($value)) {
+                 $this->errors[$field] = "The $field field is required."; // Add error if field is empty
+             }
+         }
+
+         public function fails() {
+             return !empty($this->errors); // Check if validation errors exist
+         }
+
+         public function errors() {
+             return $this->errors; // Return validation errors
+         }
+     }
+     ```
+   - Explanation:
+     - `rules()` method sets validation rules for fields.
+     - `validate()` method applies rules and records any errors.
+     - `fails()` returns true if there are validation errors, while `errors()` returns the list of errors.
+
+9. **app/core/QueryBuilder.php**
+   - Simplifies SQL queries with a fluent API for building and executing database queries.
+   - Code Example:
+     ```php
+     <?php
+     class QueryBuilder {
+         protected $db;
+         protected $query;
+         protected $bindings = [];
+
+         public function __construct() {
+             $this->db = Database::getInstance()->getConnection();
+         }
+
+         public function table($table) {
+             $this->query = "SELECT * FROM " . $this->quoteIdentifier($table); // Start query with table
+             return $this;
+         }
+
+         public function where($column, $operator, $value) {
+             $this->query .= " WHERE " . $this->quoteIdentifier($column) . " $operator :$column";
+             $this->bindings[$column] = $value; // Bind value
+             return $this;
+         }
+
+         public function get() {
+             $stmt = $this->db->prepare($this->query);
+             foreach ($this->bindings as $key => $value) {
+                 $stmt->bindValue(":$key", $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+             }
+             $stmt->execute();
+             return $stmt->fetchAll(PDO::FETCH_OBJ); // Fetch and return results
+         }
+
+         private function quoteIdentifier($identifier) {
+             return "`" . str_replace("`", "``", $identifier) . "`"; // Securely quote identifiers
+         }
+     }
+     ```
+   - Explanation:
+     - `table()` starts an SQL query with a specified table.
+     - `where()` adds a condition to filter records.
+     - `get()` executes the query and returns the results as an array of objects.
+
+
+     9. **app/core/Paginator.php**
+   - Handles pagination, providing calculations for offsets and generating pagination links.
+   - Code Example:
+     ```php
+     <?php
+     class Paginator {
+         private $totalRecords;
+         private $currentPage;
+         private $perPage;
+         private $totalPages;
+
+         public function __construct($totalRecords, $currentPage = 1, $perPage = 10) {
+             $this->totalRecords = $totalRecords;
+             $this->currentPage = $currentPage;
+             $this->perPage = $perPage;
+             $this->totalPages = ceil($totalRecords / $perPage); // Calculate total pages
+         }
+
+         public function getOffset() {
+             return ($this->currentPage - 1) * $this->perPage; // Calculate SQL offset
+         }
+
+         public function render() {
+             $html = '<ul class="pagination">';
+             for ($i = 1; $i <= $this->totalPages; $i++) {
+                 $html .= '<li><a href="?page=' . $i . '">' . $i . '</a></li>';
+             }
+             $html .= '</ul>';
+             return $html; // Return HTML for pagination
+         }
+     }
+     ```
+   - Explanation:
+     - `getOffset()` calculates the offset used in SQL LIMIT queries.
+     - `render()` generates HTML links for navigating between pages.
+
+10. **app/init.php**
+    - Loads environment variables and defines constants for application configuration.
+    - Code Example:
+      ```php
+      <?php
+      $_ENV = parse_ini_file('.env', false, INI_SCANNER_RAW); // Load environment variables from .env file
+
+      // Define constants for configurations
+      define("APP_NAME", $_ENV["APP_NAME"]);
+      define("THEME", $_ENV["THEME"]);
+      define('ROOT', $_ENV["APP_PATH"]);
+      define('DB_TYPE', $_ENV["DB_CONNECTION"]);
+      define('DB_HOST', $_ENV["DB_HOST"]);
+      define('DB_NAME', $_ENV["DB_DATABASE"]);
+      define('DB_USER', $_ENV["DB_USERNAME"]);
+      define('DB_PASS', $_ENV["DB_PASSWORD"]);
+      ```
+    - Explanation:
+      - `parse_ini_file()` reads settings from a .env file into `$_ENV`.
+      - Constants are defined based on `$_ENV` values for easy configuration management.
+
+11. **public/index.php**
+    - The main entry point for HTTP requests, initializing and running the application.
+    - Code Example:
+      ```php
+      <?php
+      session_start(); // Start session handling for the application
+
+      require_once '../vendor/autoload.php'; // Include Composer autoloader
+      include "../app/init.php"; // Load configurations and constants
+
+      $app = new App(dirname(__DIR__)); // Initialize the application
+      require_once '../app/routes/web.php'; // Include web routes
+
+      $app->run(); // Start processing requests
+      ```
+    - Explanation:
+      - `session_start()` enables session management.
+      - `$app->run()` starts the CoreXPHP application, resolving routes and handling requests.
+
+
+
+12. **app/helpers/functions.php**
+    -Provides helper functions for various tasks, such as redirecting and generating unique IDs.
+    Code Example:
+    ```php
+    <?php
+    function redirect($path) {
+        header('Location: ' . ROOT . '/' . $path);
+        exit; // Redirects to the specified path and exits
+    }
+
+    function generateUniqueId($length = 16) {
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $result = '';
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $result; // Generates a unique ID with the specified length
+    }
+    -Explanation:
+    -redirect() function redirects the user to a specified path within the application.
+    -generateUniqueId() creates a random unique identifier of a specified length, useful for generating unique tokens.
+13. **app/routes/web.php**
+    -Registers routes for the application, mapping URL paths to controller actions.
+    Code Example:
+    ```php
+
+    <?php
+    $app->router->get('', 'index'); // Define the root route
+    $app->router->get('/home', [HomeController::class, 'index']); // Define a route for home page
+    $app->router->get('/user/{id}', [UserController::class, 'show']); // Dynamic route with a parameter
+    
+    -Explanation:
+    -This file defines routes, allowing the application to handle requests for specific URLs.
+    -Dynamic routes capture URL parameters, such as user ID, for use in controller actions.
+
+
+
+  Based on the details in the documentation for CoreXPHP, here are a few suggestions to improve or extend the framework's capabilities while keeping it efficient, secure, and straightforward:
+
+1. Security Enhancements
+CSRF Protection on Forms: Extend CSRF functionality to check tokens automatically on all POST requests to prevent form hijacking.
+Input Sanitization and Escaping: Ensure all database inputs and outputs are sanitized and escaped to prevent SQL injection and XSS attacks.
+Prepared Statements in QueryBuilder: Although the where clause currently uses bindings, consider a universal approach that automatically prepares all statements.
+2. Error Handling and Logging
+Centralized Error Logging: Add a Logger class to capture and store errors, optionally to a file or external service, for easier debugging.
+Custom Error Pages: Implement custom error pages (like 404 or 500) to improve user experience on unexpected issues.
+3. Middleware Management
+Middleware Support for Routes: Enable middleware at the route level to allow pre-processing, like authentication checks, before reaching the controllers.
+Global Middleware Stack: Add a mechanism to register global middleware (e.g., CORS headers, rate limiting) that applies to all routes.
+4. Session and Authentication
+Session Management: Expand session handling with custom configuration (session timeout, regeneration, etc.) to enhance security and flexibility.
+User Authentication Module: Include a basic authentication and authorization module that developers can extend or replace.
+5. Extensible Validation Rules
+Custom Validation Rules: Allow developers to add custom validation rules, making the Validator class more flexible and accommodating unique data requirements.
+Error Messages Customization: Enable setting custom error messages directly in the validation rule definitions.
+6. Enhance the Query Builder
+Joins and Complex Queries: Extend the QueryBuilder to support JOIN operations and complex conditions (AND, OR).
+Query Caching: Optionally cache frequently executed queries to enhance performance on static data queries.
+7. Automatic Dependency Injection (DI)
+Controller DI: Add dependency injection in controllers to make testing easier and to allow service management for frequently used classes.
+8. Routing Enhancements
+Route Groups: Support route grouping for organizing related routes and applying group-specific middleware or prefixes (e.g., for API endpoints).
+Dynamic Route Parameters Validation: Allow parameter validation for routes (e.g., requiring a numeric id parameter) directly in route definitions.
+9. Performance Optimization
+View Caching: Cache rendered views where possible, especially for pages that don’t change frequently, to reduce processing load.
+Config Caching: Cache parsed configuration files to reduce filesystem reads and speed up the initialization process.
+These improvements aim to enhance CoreXPHP without overcomplicating the framework. Let me know if you’d like specific code examples for any of these suggestions!

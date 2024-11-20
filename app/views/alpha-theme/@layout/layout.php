@@ -1,374 +1,261 @@
 <!DOCTYPE html>
-<html lang="en" color-scheme="light">
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="canonical" href="<?= ROOT ?>" />
-  <meta name="theme-color" content="#127fb1" />
-  <link rel="icon" type="image/png" href="<?= ASSETS ?>/favicon.png">
-  <?php if (isset($params['meta'])) { ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoreXPHP - Welcome</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f8fa;
+            color: #24292f;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+            scroll-behavior: smooth;
+        }
+        body.dark-theme {
+            background-color: #181818;
+            color: #d1d5da;
+        }
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #24292f;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background-color 0.3s;
+        }
+        body.dark-theme header {
+            background-color: #000;
+        }
+        .logo {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        /* Navbar and Hamburger Menu */
+        nav {
+            display: flex;
+            align-items: center;
+        }
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        .hamburger div {
+            width: 25px;
+            height: 3px;
+            background-color: #fff;
+            margin: 3px;
+            transition: all 0.3s ease;
+        }
+        /* Cross Icon when menu is open */
+        .hamburger.open div:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger.open div:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.open div:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: #24292f;
+            padding: 1rem;
+            border-radius: 5px;
+            width: 200px;
+        }
+        .mobile-nav ul {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            list-style-type: none;
+        }
+        .mobile-nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .mobile-nav.active {
+            display: block;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #24292f;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        body.dark-theme footer {
+            background-color: #000;
+        }
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .intro, .why-choose .row {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hamburger {
+                display: flex;
+            }
+            nav ul {
+                display: none;
+            }
+            .mobile-nav ul {
+                flex-direction: column;
+            }
+            .mobile-nav.active {
+                display: block;
+            }
+        }
+        /* Keyframes */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script>
+        // Theme Toggle Functionality
+        window.onload = function() {
+            const themeToggle = document.querySelector('.theme-toggle');
+            const body = document.body;
+            const icon = themeToggle.querySelector('i');
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-theme');
+                icon.classList.toggle('fa-sun');
+                icon.classList.toggle('fa-moon');
+            });
+            // Smooth Scrolling for Anchor Links
+            const links = document.querySelectorAll('a[href^="#"]');
+            for (const link of links) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.querySelector(link.getAttribute('href'));
+                    target.scrollIntoView({ behavior: 'smooth' });
+                });
+            }
+            // Hamburger Menu Toggle
+            const hamburger = document.querySelector('.hamburger');
+            const mobileNav = document.querySelector('.mobile-nav');
+            hamburger.addEventListener('click', () => {
+                mobileNav.classList.toggle('active');
+                hamburger.classList.toggle('open');
+            });
+        };
 
-    <meta name="description" content="<?= $params['meta']['description'] ?>">
-    <meta name="keywords" content="<?= $params['meta']['keywords'] ?>">
-    <meta name="author" content="<?= $params['meta']['author'] ?>">
-
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="<?php echo $params['meta']['title']; ?>">
-    <meta property="og:description" content="<?php echo $params['meta']['description']; ?>">
-    <meta property="og:image" content="<?php echo $params['meta']['image']; ?>">
-    <meta property="og:url" content="<?php echo $params['meta']['url']; ?>">
-    <meta property="og:type" content="website">
-
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo $params['meta']['title']; ?>">
-    <meta name="twitter:description" content="<?php echo $params['meta']['description']; ?>">
-    <meta name="twitter:image" content="<?php echo $params['meta']['image']; ?>">
-<meta name="google-adsense-account" content="ca-pub-1299431623082662">
-    <title><?= $params['meta']['title'] ?></title>
-
-  <?php } ?>
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/social.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/item.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/product.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/question.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/help.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/job.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/video.css">
-  <link rel="stylesheet" href="<?= ASSETS ?>/css/collection.css">
-  <link href="https://cdn.jsdelivr.net/npm/@iconscout/unicons@4.0.8/css/line.min.css" rel="stylesheet">
-  <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299431623082662"
-     crossorigin="anonymous"></script>
-
-  <script src="<?=ASSETS?>/js/action.js"></script>
-  <script>
-    function generateUniqueId(length = 16) {
-      const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      let result = '';
-      for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        result += chars.charAt(randomIndex);
-      }
-      return result;
-    }
-  </script>
-
-  <script>
-    $(document).ready(function() {
-      $('.burger').click(function() {
-        $('.mobile-menu').toggleClass('open');
-        $('.burger').toggleClass('toggle');
-      });
-
-      $('.has-submenu > a').click(function(e) {
-        e.preventDefault();
-        $(this).siblings('.submenu').slideToggle();
-        $(this).find('i').toggleClass('uil-angle-up uil-angle-down');
-      });
-    });
-  </script>
-</head>
-
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <body>
   <header>
-    <div class="header">
-      <nav id="secondary">
-        <div class="burger">
-          <div class="line1"></div>
-          <div class="line2"></div>
-          <div class="line3"></div>
-        </div>
-        <div class="logo">
-          <a href="<?= ROOT ?>"><img src="<?= ASSETS ?>/img/logo.svg" alt=""></a>
-        </div>
-        <div class="searching">
-          <i class="uil uil-search"></i>
-        </div>
+    <div class="logo">CoreXPHP</div>
+    <nav>
+      <ul>
+        <li><a href="#docs">Home</a></li>
+        <li><a href="#features">Documentation</a></li>
+        <li><a href="#community">Github</a></li>
+        <li><a href="#community">About</a></li>
+        <li><a href="#" class="theme-toggle"><i class="fas fa-moon"></i></a></li>
+      </ul>
+      <div class="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <div class="mobile-nav">
         <ul>
-
-            <li>
-              <a href="<?= ROOT ?>" class="<?= isLinkActive('') ?>">
-                <i class="uil uil-estate"></i> <span> Home</span> </a>
-            </li>
-
-          <li class="not-mobile-item">
-            <a href="<?= ROOT ?>/explore/" class="<?= isLinkActive('/explore') ?>"> <i class="uil uil-exclude"></i> <span> Explore</span> </a>
-          </li>
-          <li>
-            <a href="<?= ROOT ?>/communities/" class="<?= isLinkActive('/communities') ?>"><i class="uil uil-layer-group"></i><span> Communities</span> </a>
-          </li>
-          <li>
-            <a href="<?= ROOT ?>/pages/" class="<?= isLinkActive('/pages') ?>"><i class="uil uil-compress-arrows"></i><span> Pages</span> </a>
-          </li>
-          <li class="not-mobile-item">
-            <a href="<?= ROOT ?>/collections/" class="<?= isLinkActive('/collections') ?>"><i class="uil uil-server"></i><span> Collections</span> </a>
-          </li>
-          <li>
-            <a href="<?= ROOT ?>/notifications/" class="<?= isLinkActive('/notifications') ?>"><i class="uil uil-bell"></i><span> Notifications</span> </a>
-          </li>
-          <?php if (isset($_SESSION['userAltName'])) : ?>
-            <li>
-              <a onclick="handleLogout();" href="<?= ROOT ?>/logout/" class="<?= isLinkActive('/logout') ?>"><i class="uil uil-sign-out-alt"></i><span> Logout</span> </a>
-            </li>
-          <?php else : ?>
-            <li>
-              <a href="<?= ROOT ?>/login/" class="<?= isLinkActive('/login') ?>"><i class="uil uil-user"></i><span> Join</span> </a>
-            </li>
-          <?php endif; ?>
-
+          <li><a href="#docs">Docs</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#community">Community</a></li>
         </ul>
-        <a id="multi-action-button" href="<?= ROOT ?>/action/" class="action-button">
-          <i class="uil uil-plus"></i>
-        </a>
-      </nav>
-    </div>
+      </div>
+    </nav>
   </header>
 
-
-  <div class="mobile-menu">
-    <ul>
-      <li><a href="#">Home</a></li>
-      <li class="has-submenu">
-        <a href="#">About Us <i class="uil uil-angle-down"></i></a>
-        <ul class="submenu">
-          <li><a href="<?= ROOT ?>/about-us/">About the Platform</a></li>
-        </ul>
-      </li>
-      <li><a href="<?= ROOT ?>/how-it-work">How It Works</a></li>
-      <li><a href="<?= ROOT ?>/mission">Mission</a></li>
-      <li class="has-submenu">
-        <a href="<?= ROOT ?>/get-involved/">Get Involved <i class="uil uil-angle-down"></i></a>
-        <ul class="submenu">
-          <li><a href="<?= ROOT ?>/volunteer-Opportunities/">Volunteer Opportunities</a></li>
-          <li><a href="<?= ROOT ?>/collaborative-projects">Collaborative Projects</a></li>
-          <li><a href="<?= ROOT ?>/impact-stories/">Impact Stories</a></li>
-        </ul>
-      </li>
-      <li class="has-submenu">
-        <a href="#">Leadership and Governance <i class="uil uil-angle-down"></i></a>
-        <ul class="submenu">
-
-          <li><a href="<?= ROOT ?>/guiding-values/">Leadership and Governance</a></li>
-          <li><a href="<?= ROOT ?>/directors/">Board of Directors</a></li>
-          <li><a href="<?= ROOT ?>/advisory-council/">Advisory Council</a></li>
-          <li><a href="<?= ROOT ?>/investor/">Investor</a></li>
-        </ul>
-      </li>
-
-      <li class="has-submenu">
-        <a href="#">Resources and Help Center <i class="uil uil-angle-down"></i></a>
-        <ul class="submenu">
-          <li><a href="#">Articles and Blogs</a></li>
-          <li><a href="#">Videos and Tutorials</a></li>
-          <li><a href="#">Community Guidelines</a></li>
-        </ul>
-      </li>
-
-      <li><a href="<?= ROOT ?>/ads-marketing/">Ads & Marketing</a></li>
-      <?php
-      if (isset($_SESSION['userAltName'])) {
-        echo '<li><a href="' . ROOT . '/logout/">Logout</a></li>';
-      } else {
-        echo '<li><a href="' . ROOT . '/login/">LogIn</a></li>
-          <li><a href="' . ROOT . '/register/">SignUp</a></li>';
-      }
-      ?>
-
-      <li>
-        <div id="theme-toggle" style="padding: 0.5rem;color:#726f6f;"><i class="uil uil-sun"></i> <i class="uil uil-moon"></i></div>
-      </li>
-
-    </ul>
-
-    <div class="mobile-menu-footer">
-      <div style="display: flex;justify-content: space-around;">
-        <a href="<?= ROOT ?>/terms-of-service/">Terms of Service</a>
-        <a href="<?= ROOT ?>/privacy-policy/">Privacy Policy</a>
-      </div>
-      <p>&copy; 2023 Mornstar. All rights reserved.</p>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="circle-animation"></div>
+    <div class="hero-content">
+      <h1>Welcome to CoreXPHP</h1>
+      <p>The ultimate PHP framework for building scalable, modern web applications.</p>
+      <a href="#docs" class="btn-primary">Get Started</a>
     </div>
-  </div>
+  </section>
 
-  <main>
+  <section id="intro" class="section intro">
+    <div class="text-block">
+      <h2>What is CoreXPHP?</h2>
+      <p>CoreXPHP is a lightweight and powerful PHP framework designed to help developers build modern, scalable web applications with ease.</p>
+    </div>
+    <div class="image-block">
+      <img src="https://picsum.photos/500/300" alt="Random Image">
+    </div>
+  </section>
 
-    {{content}}
-
-    <div class="margin-bottom"></div>
-    <!---To Open Model html -->
-    <div class="overlay" id="modalOverlay">
-      <div class="modal-wrapper">
-        <div class="modal">
-          <div class="close" id="closeModal">&times;</div>
-          <div class="modal-content" id="modalContent">
-          </div>
-        </div>
+  <section id="features" class="section features">
+    <h2>Core Features</h2>
+    <div class="features-grid">
+      <div class="feature">
+        <i class="fas fa-route"></i>
+        <h3>Routing</h3>
+        <p>Advanced routing system to handle HTTP requests effortlessly.</p>
+      </div>
+      <div class="feature">
+        <i class="fas fa-database"></i>
+        <h3>Database ORM</h3>
+        <p>Seamlessly interact with your database using a powerful ORM and query builder.</p>
+      </div>
+      <div class="feature">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Security</h3>
+        <p>Built-in features to protect against common vulnerabilities such as CSRF, XSS, SQL Injection.</p>
+      </div>
+      <div class="feature">
+        <i class="fas fa-wrench"></i>
+        <h3>Developer Tools</h3>
+        <p>Built-in tools like the CoreXBuilder to scaffold and manage your project effortlessly.</p>
       </div>
     </div>
-    <!---End of To Open Model Html-->
+  </section>
 
-    <div class="picModal" id="imageModal">
-      <span class="close" id="closePicModal"><i class="uil uil-times"></i></span>
-      <img class="modal-content" id="modalImage">
-      <div id="imageNumber" class="image-number"></div>
-      <button id="prevBtn" class="modal-btn prev-btn"> <i class="uil uil-arrow-left"></i></button>
-      <button id="nextBtn" class="modal-btn next-btn"> <i class="uil uil-arrow-right"></i></button>
+  <section id="why-choose" class="section why-choose">
+    <h2>Why Choose CoreXPHP?</h2>
+    <div class="row">
+      <div class="left-block">
+        <p>CoreXPHP offers a perfect balance between simplicity and power. Whether you're building a small project or a large-scale application, CoreXPHP provides the tools and flexibility you need to succeed.</p>
+      </div>
+      <div class="right-block">
+        <p>With its developer-friendly approach, powerful features, and robust performance, CoreXPHP stands out as a go-to framework for modern PHP development.</p>
+      </div>
     </div>
-
-
-  </main>
+  </section>
 
   <footer>
-    <div class="footer">
-      <div class="search-container">
-        <form class="search-form" action="<?= ROOT ?>/search/top/" method="get">
-          <input type="text" name="q" placeholder="Search..">
-        </form>
-      </div>
-      <?php if (!isset($_SESSION['userAltName'])) { ?>
-        <div id="g_id_onload" data-client_id="349167856898-tgba8nm61ra1ltjbk2lt6ntjntcn7o28.apps.googleusercontent.com" data-context="signin" data-ux_mode="popup" data-callback="handleLogin" data-auto_select="true" data-itp_support="true">
-        </div>
-      <?php } ?>
-
-      <?php
-      if (isset($params['panels']) && $params['panels'] == "collectionPanel") {
-        include('../app/views/alpha-theme/layout/panels/collectionPanel.php');
-      } else {
-        // include('../app/views/alpha-theme/@layout/panels/followPanel.php');
-        include('../app/views/alpha-theme/@layout/panels/trendPanel.php');
-      }
-      ?>
-      <div class="footer-menu">
-        <ul>
-          <li>
-
-          </li>
-          <li>
-            <a href="">Terms of Service</a>
-          </li>
-          <li>
-            <a href="">Privacy Policy</a>
-          </li>
-          <li>
-            <a href="">Cookie Policy</a>
-          </li>
-          <br>
-          <li>
-            <a href="">Ads info</a>
-          </li>
-          <li>
-            <a href="">More...</a>
-          </li>
-          <li>
-            <span>© 2023 Mornstar Inc.</span>
-          </li>
-
-        </ul>
-      </div>
-    </div>
+    <p>&copy; 2024 CoreXPHP. All rights reserved.</p>
   </footer>
 </body>
-
-<script src="<?= ASSETS ?>/js/main.js"></script>
-<script src="<?= ASSETS ?>/js/video.js"></script>
-<script src="<?= ASSETS ?>/js/collection.js"></script>
-<script>
-  function handleLogin(response) {
-    if (response.credential) {
-      let jwt = response.credential;
-      let user = JSON.parse(atob(jwt.split(".")[1]));
-
-      // Send the user data to the server using Ajax
-      $.ajax({
-        url: '<?= ROOT ?>/login/google',
-        type: 'POST',
-        data: {
-          userFirstName: user.given_name,
-          userLastName: user.family_name,
-          userEmail: user.email,
-          userAvatar: user.picture
-        },
-        success: function(response) {
-          // Handle the server response
-          console.log(response);
-          // Refresh the page
-          location.reload();
-        },
-        error: function(xhr, status, error) {
-          // Handle errors
-          console.log(error);
-        }
-      });
-
-    } else {
-      console.log('User not signed in');
-    }
-  }
-
-  function handleLogout() {
-    google.accounts.id.disableAutoSelect();
-    google.accounts.id.prompt();
-
-  }
-</script>
-<script>
-  // Wait for the document to be fully loaded
-  $(document).ready(function() {
-    $(document).on("mousedown", ".pursuers-container", function(e) {
-      let isDragging = true,
-        startX = e.pageX - $(this).offset().left,
-        scrollLeft = this.scrollLeft;
-      $(this).css("cursor", "grabbing");
-
-      $(document).on("mouseup", function() {
-        isDragging = false;
-        $(".pursuers-container").css("cursor", "grab");
-      });
-
-      $(document).on("mouseleave", function() {
-        isDragging = false;
-        $(".pursuers-container").css("cursor", "grab");
-      });
-
-      $(document).on("mousemove", function(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        const x = e.pageX - $(".pursuers-container").offset().left;
-        const walk = (x - startX) * 2; // Adjust the dragging sensitivity
-        $(".pursuers-container")[0].scrollLeft = scrollLeft - walk;
-      });
-    });
-
-    // Touch events for mobile
-    $(document).on("touchstart", ".pursuers-container", function(e) {
-      let isDragging = true,
-        startX = e.touches[0].pageX - $(this).offset().left,
-        scrollLeft = this.scrollLeft;
-      $(this).css("cursor", "grabbing");
-
-      $(document).on("touchend", function() {
-        isDragging = false;
-        $(".pursuers-container").css("cursor", "grab");
-      });
-
-      $(document).on("touchcancel", function() {
-        isDragging = false;
-        $(".pursuers-container").css("cursor", "grab");
-      });
-
-      $(document).on("touchmove", function(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        const x = e.touches[0].pageX - $(".pursuers-container").offset().left;
-        const walk = (x - startX) * 3; // Adjust the dragging sensitivity
-        $(".pursuers-container")[0].scrollLeft = scrollLeft - walk;
-      });
-    });
-  });
-</script>
-
-
 </html>

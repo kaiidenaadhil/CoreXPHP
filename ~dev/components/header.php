@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
           <li><a href="#">Download</a>
           </li>
-          <li><a href="docs.php">Docs</a></li>
+          <li><a href="/docs">Docs</a></li>
           <li><a href="#">Help & Support</a></li>
 
         </ul>

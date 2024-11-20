@@ -52,7 +52,7 @@ body {
 
 <footer class="footer">
     <div class="footer-content">
-        <p>&copy; 2024 CodeXPHP. All rights reserved.</p>
+        <p>&copy; 2024 CoreXPHP. All rights reserved.</p>
         <p>Developed by <a href="https://avantvista.com" target="_blank" rel="noopener noreferrer">
             <img src="https://avantvista.com/assets/alpha-theme/img/logo.svg" alt="Avant Vista Venture Logo" class="footer-logo">
         </a></p>
